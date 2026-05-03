@@ -1,0 +1,140 @@
+{
+  "info": {
+    "name": "DebugTrace API",
+    "description": "Postman collection for testing all supported DebugTrace API languages against the local Docker Compose server.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8000"
+    }
+  ],
+  "item": [
+    {
+      "name": "Debug Python",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/debug",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "debug"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"language\": \"python\",\n  \"code\": \"x = 1\\ny = 2\\nprint(x + y)\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Debug JavaScript",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/debug",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "debug"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"language\": \"javascript\",\n  \"code\": \"let m = new Map();\\nm.set(\\\"k\\\", 1);\\nlet s = new Set([1, 2, 3]);\\nconsole.log(m, s);\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Debug Go",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/debug",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "debug"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"language\": \"go\",\n  \"code\": \"package main\\nimport \\\"fmt\\\"\\nfunc main() {\\n    x := 5\\n    nums := []int{1, 2, 3}\\n    fmt.Println(x, nums)\\n}\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Debug Java",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/debug",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "debug"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"language\": \"java\",\n  \"code\": \"import java.util.*;\\npublic class Main {\\n  public static void main(String[] args) {\\n    int x = 5;\\n    ArrayList<Integer> list = new ArrayList<>();\\n    list.add(1);\\n    list.add(2);\\n    System.out.println(x + list.size());\\n  }\\n}\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Debug C++",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/debug",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "debug"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"language\": \"cpp\",\n  \"code\": \"#include <iostream>\\n#include <vector>\\nint main() {\\n    int x = 5;\\n    std::vector<int> nums = {1, 2, 3};\\n    std::cout << x + nums.size() << std::endl;\\n    return 0;\\n}\"\n}"
+        }
+      }
+    }
+  ]
+}
