@@ -114,9 +114,25 @@ This skill drives every story in SUPER_PRD.md from a fresh start to a green-test
     - **Scope examples**: `adapter-python`, `adapter-go`, `factory`, `session`, `endpoint`, `observers`, `decorators`
     - Subject: under 72 chars, imperative mood (`add`, not `added`)
 
-18. Update `SUPER_PRD.md` §10 Done Definition checklist if applicable.
+18. Write a session history entry under `.history/` before the final user summary:
 
-19. Summarize for the user:
+    ```bash
+    .history/story-<N>-<unix_timestamp>.md
+    ```
+
+    The history file must include:
+    - The user's story request.
+    - Skills and project context loaded.
+    - Files created or modified.
+    - Implementation decisions and notable fixes.
+    - Verification commands and their results.
+    - Known blockers, environment notes, or skipped checks.
+
+    Keep this record factual and session-scoped. Do not include unrelated work from other stories.
+
+19. Update `SUPER_PRD.md` §10 Done Definition checklist if applicable.
+
+20. Summarize for the user:
     - What was done
     - Which ACs are now green
     - What remains (blocked items, follow-up stories)
