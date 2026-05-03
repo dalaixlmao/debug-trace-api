@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from debug_service.adapters.base import DebugAdapter
+from debug_service.adapters.go_adapter import GoAdapter
 from debug_service.adapters.python_adapter import PythonAdapter
 from debug_service.adapters.stub import StubAdapter
 from debug_service.exceptions import UnsupportedLanguageError
@@ -11,6 +12,7 @@ _REGISTRY: dict[str, type[DebugAdapter] | DebugAdapter] = {
     language.value: StubAdapter(language.value) for language in Language
 }
 _REGISTRY[Language.PYTHON.value] = PythonAdapter
+_REGISTRY[Language.GO.value] = GoAdapter
 
 
 class DebugAdapterFactory:
