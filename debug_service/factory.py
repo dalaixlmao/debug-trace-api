@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from debug_service.adapters.base import DebugAdapter
+from debug_service.adapters.cpp_adapter import CppAdapter
 from debug_service.adapters.go_adapter import GoAdapter
 from debug_service.adapters.python_adapter import PythonAdapter
 from debug_service.adapters.stub import StubAdapter
@@ -13,6 +14,7 @@ _REGISTRY: dict[str, type[DebugAdapter] | DebugAdapter] = {
 }
 _REGISTRY[Language.PYTHON.value] = PythonAdapter
 _REGISTRY[Language.GO.value] = GoAdapter
+_REGISTRY[Language.CPP.value] = CppAdapter
 
 
 class DebugAdapterFactory:
