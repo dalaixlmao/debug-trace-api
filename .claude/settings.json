@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pytest:*)",
+      "Bash(python:*)",
+      "Bash(go build:*)",
+      "Bash(clang++:*)",
+      "Bash(javac:*)",
+      "Bash(java:*)",
+      "Bash(node:*)",
+      "Bash(curl:*)",
+      "Bash(pgrep:*)",
+      "Bash(jq:*)",
+      "Bash(grep:*)",
+      "Bash(kill:*)"
+    ]
+  }
+}
