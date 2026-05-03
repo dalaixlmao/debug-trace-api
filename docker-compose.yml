@@ -1,0 +1,7 @@
+services:
+  debugtrace-api:
+    build: .
+    image: debugtrace-api:latest
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
