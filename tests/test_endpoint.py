@@ -6,8 +6,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from debug_service.adapters.base import DebugAdapter
-from debug_service.exceptions import AdapterFailureError, CompileError
-from debug_service.factory import DebugAdapterFactory
+from debug_service.exceptions import AdapterFailureError, CompileError, UnsupportedLanguageError
 from debug_service.models import DebugStep
 from debug_service.observers import EventBus
 from debug_service.service import DebugService
@@ -32,13 +31,24 @@ class FakeAdapter(DebugAdapter):
         return self._steps
 
 
+class FakeFactory:
+    def __init__(self, adapters: dict[str, DebugAdapter]) -> None:
+        self._adapters = adapters
+
+    def get(self, language: str) -> DebugAdapter:
+        try:
+            return self._adapters[language]
+        except KeyError:
+            raise UnsupportedLanguageError(language) from None
+
+
 @pytest.fixture
 def client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
     from debug_service import main
 
-    factory = DebugAdapterFactory()
-    for language in ("python", "go", "cpp", "java", "javascript"):
-        factory.register(language, FakeAdapter())
+    factory = FakeFactory(
+        {language: FakeAdapter() for language in ("python", "go", "cpp", "java", "javascript")}
+    )
     monkeypatch.setattr(
         main,
         "service",
@@ -84,8 +94,9 @@ def test_missing_code_returns_422(client: TestClient) -> None:
 def test_compile_error_returns_422(monkeypatch: pytest.MonkeyPatch) -> None:
     from debug_service import main
 
-    factory = DebugAdapterFactory()
-    factory.register("go", FakeAdapter(raises=CompileError("/tmp/debugtrace/main.go: undefined")))
+    factory = FakeFactory(
+        {"go": FakeAdapter(raises=CompileError("/tmp/debugtrace/main.go: undefined"))}
+    )
     monkeypatch.setattr(
         main,
         "service",
@@ -108,8 +119,8 @@ def test_timeout_returns_408_and_follow_up_request_is_healthy(
 ) -> None:
     from debug_service import main
 
-    factory = DebugAdapterFactory()
-    factory.register("python", FakeAdapter(sleep=0.2))
+    adapters = {"python": FakeAdapter(sleep=0.2)}
+    factory = FakeFactory(adapters)
     monkeypatch.setattr(
         main,
         "service",
@@ -125,7 +136,7 @@ def test_timeout_returns_408_and_follow_up_request_is_healthy(
     assert timeout_response.json()["detail"]["error"] == "timeout"
     assert elapsed < 0.1
 
-    factory.register("python", FakeAdapter())
+    adapters["python"] = FakeAdapter()
     healthy_response = client.post("/debug", json={"language": "python", "code": "x=1"})
     assert healthy_response.status_code == 200
 
@@ -133,8 +144,7 @@ def test_timeout_returns_408_and_follow_up_request_is_healthy(
 def test_adapter_crash_returns_500(monkeypatch: pytest.MonkeyPatch) -> None:
     from debug_service import main
 
-    factory = DebugAdapterFactory()
-    factory.register("python", FakeAdapter(raises=RuntimeError("boom")))
+    factory = FakeFactory({"python": FakeAdapter(raises=RuntimeError("boom"))})
     monkeypatch.setattr(
         main,
         "service",

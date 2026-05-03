@@ -6,29 +6,32 @@ from debug_service.adapters.go_adapter import GoAdapter
 from debug_service.adapters.java_adapter import JavaAdapter
 from debug_service.adapters.javascript_adapter import JavaScriptAdapter
 from debug_service.adapters.python_adapter import PythonAdapter
-from debug_service.adapters.stub import StubAdapter
 from debug_service.exceptions import UnsupportedLanguageError
-from debug_service.models import Language
 
 
-_REGISTRY: dict[str, type[DebugAdapter] | DebugAdapter] = {
-    language.value: StubAdapter(language.value) for language in Language
+_REGISTRY: dict[str, type[DebugAdapter]] = {
+    "python": PythonAdapter,
+    "go": GoAdapter,
+    "cpp": CppAdapter,
+    "java": JavaAdapter,
+    "javascript": JavaScriptAdapter,
+    # Add new languages here, and only here.
 }
-_REGISTRY[Language.PYTHON.value] = PythonAdapter
-_REGISTRY[Language.GO.value] = GoAdapter
-_REGISTRY[Language.CPP.value] = CppAdapter
-_REGISTRY[Language.JAVA.value] = JavaAdapter
-_REGISTRY[Language.JAVASCRIPT.value] = JavaScriptAdapter
 
 
 class DebugAdapterFactory:
-    def get(self, language: str) -> DebugAdapter:
-        adapter_or_type = _REGISTRY.get(language)
-        if adapter_or_type is None:
-            raise UnsupportedLanguageError(language)
-        if isinstance(adapter_or_type, type):
-            return adapter_or_type()
-        return adapter_or_type
+    """Resolve language identifiers to concrete debug adapters.
 
-    def register(self, language: str, adapter: type[DebugAdapter] | DebugAdapter) -> None:
-        _REGISTRY[language] = adapter
+    The module-level registry is the system's Open/Closed extension point:
+    adding a language means adding one registry entry and a new adapter file.
+    """
+
+    def get(self, language: str) -> DebugAdapter:
+        adapter_type = _REGISTRY.get(language)
+        if adapter_type is None:
+            raise UnsupportedLanguageError(language)
+        return adapter_type()
+
+    @staticmethod
+    def supported() -> list[str]:
+        return sorted(_REGISTRY)

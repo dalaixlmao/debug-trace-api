@@ -1818,9 +1818,9 @@ The service is "done" when **all** of these hold:
 - [ ] All 8 stories' acceptance criteria pass.
 - [ ] `pytest tests/ -q` is green on a fresh checkout.
 - [ ] `curl` smoke tests for all five languages return `200` with a non-empty trace.
-- [ ] `grep` audit of OCP boundary (Story 7 AC #6) returns empty.
+- [x] `grep` audit of OCP boundary (Story 7 AC #6) returns empty.
 - [ ] No subprocess (`dlv`, `node`, `java`, lldb-spawned binary) survives 5 seconds after a request completes or times out.
-- [ ] `ADDING_A_LANGUAGE.md` exists and the documented two-step checklist actually works (verified by adding a sixth fake language and running the OCP regression test from Story 7).
+- [x] `ADDING_A_LANGUAGE.md` exists and the documented two-step checklist actually works (verified by adding a sixth fake language and running the OCP regression test from Story 7).
 - [ ] `README.md` documents the LLDB Python-interpreter requirement.
 
 ---
