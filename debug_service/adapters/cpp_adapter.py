@@ -76,10 +76,21 @@ _LLDB_TRACE_SCRIPT = textwrap.dedent(
 
     import json
     import sys
+    import time
 
     import lldb
 
     UINT32_MAX = 0xFFFFFFFF
+
+
+    def wait_until_stopped_or_exited(process, timeout=5.0):
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            state = process.GetState()
+            if state in {lldb.eStateStopped, lldb.eStateExited, lldb.eStateCrashed, lldb.eStateDetached}:
+                return state
+            time.sleep(0.02)
+        return process.GetState()
 
 
     def extract_value(value, depth=0, max_depth=4):
@@ -183,9 +194,15 @@ _LLDB_TRACE_SCRIPT = textwrap.dedent(
             breakpoint = target.BreakpointCreateByName("main")
             if not breakpoint or breakpoint.GetNumLocations() == 0:
                 raise RuntimeError("could not set breakpoint at main")
-            process = target.LaunchSimple(None, None, None)
+
+            command_result = lldb.SBCommandReturnObject()
+            debugger.GetCommandInterpreter().HandleCommand("run", command_result)
+            if not command_result.Succeeded():
+                raise RuntimeError(command_result.GetError() or "could not launch process")
+            process = target.GetProcess()
             if not process or not process.IsValid():
                 raise RuntimeError("could not launch process")
+            wait_until_stopped_or_exited(process)
 
             steps = []
             seen = set()
@@ -202,6 +219,7 @@ _LLDB_TRACE_SCRIPT = textwrap.dedent(
                         steps.append({"line": line, "variables": variables})
                         seen.add(key)
                 thread.StepOver()
+                wait_until_stopped_or_exited(process)
             print(json.dumps(steps))
         finally:
             if process and process.IsValid() and process.GetState() != lldb.eStateExited:

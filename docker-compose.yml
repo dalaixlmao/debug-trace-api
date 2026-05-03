@@ -4,4 +4,8 @@ services:
     image: debugtrace-api:latest
     ports:
       - "8000:8000"
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp=unconfined
     restart: unless-stopped

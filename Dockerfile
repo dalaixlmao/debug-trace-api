@@ -2,6 +2,7 @@ FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
+    PYTHONPATH="/usr/lib/llvm-19/lib/python3.13/site-packages" \
     PATH="/root/go/bin:${PATH}" \
     GOFLAGS="-buildvcs=false"
 
@@ -17,6 +18,8 @@ RUN apt-get update \
         lldb \
         nodejs \
         npm \
+    && ln -s /usr/lib/llvm-19/lib/liblldb.so.1 /usr/lib/llvm-19/lib/liblldb.so \
+    && ln -s /usr/lib/llvm-19/bin/lldb-server /usr/bin/lldb-server-19.1.7 \
     && go install github.com/go-delve/delve/cmd/dlv@latest \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
