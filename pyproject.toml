@@ -6,6 +6,7 @@ dependencies = [
     "fastapi",
     "pydantic>=2",
     "uvicorn",
+    "websocket-client",
 ]
 
 [project.optional-dependencies]

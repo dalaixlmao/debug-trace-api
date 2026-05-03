@@ -4,6 +4,7 @@ from debug_service.adapters.base import DebugAdapter
 from debug_service.adapters.cpp_adapter import CppAdapter
 from debug_service.adapters.go_adapter import GoAdapter
 from debug_service.adapters.java_adapter import JavaAdapter
+from debug_service.adapters.javascript_adapter import JavaScriptAdapter
 from debug_service.adapters.python_adapter import PythonAdapter
 from debug_service.adapters.stub import StubAdapter
 from debug_service.exceptions import UnsupportedLanguageError
@@ -17,6 +18,7 @@ _REGISTRY[Language.PYTHON.value] = PythonAdapter
 _REGISTRY[Language.GO.value] = GoAdapter
 _REGISTRY[Language.CPP.value] = CppAdapter
 _REGISTRY[Language.JAVA.value] = JavaAdapter
+_REGISTRY[Language.JAVASCRIPT.value] = JavaScriptAdapter
 
 
 class DebugAdapterFactory:
