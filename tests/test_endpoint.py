@@ -6,6 +6,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from debug_service.adapters.base import DebugAdapter
+from debug_service.decorators import with_timeout, with_validation
 from debug_service.exceptions import AdapterFailureError, CompileError, UnsupportedLanguageError
 from debug_service.models import DebugStep
 from debug_service.observers import EventBus
@@ -32,14 +33,21 @@ class FakeAdapter(DebugAdapter):
 
 
 class FakeFactory:
-    def __init__(self, adapters: dict[str, DebugAdapter]) -> None:
+    def __init__(
+        self,
+        adapters: dict[str, DebugAdapter],
+        timeout_seconds: float = 0.1,
+    ) -> None:
         self._adapters = adapters
+        self._timeout_seconds = timeout_seconds
 
     def get(self, language: str) -> DebugAdapter:
         try:
-            return self._adapters[language]
+            adapter = self._adapters[language]
         except KeyError:
             raise UnsupportedLanguageError(language) from None
+        adapter.debug = with_validation(with_timeout(self._timeout_seconds)(adapter.debug))  # type: ignore[method-assign]
+        return adapter
 
 
 @pytest.fixture
@@ -52,7 +60,7 @@ def client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
     monkeypatch.setattr(
         main,
         "service",
-        DebugService(factory=factory, event_bus=EventBus(), timeout_seconds=0.1),
+        DebugService(factory=factory, event_bus=EventBus()),
     )
     return TestClient(main.app)
 
@@ -100,7 +108,7 @@ def test_compile_error_returns_422(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
         main,
         "service",
-        DebugService(factory=factory, event_bus=EventBus(), timeout_seconds=0.1),
+        DebugService(factory=factory, event_bus=EventBus()),
     )
     response = TestClient(main.app).post(
         "/debug",
@@ -120,11 +128,11 @@ def test_timeout_returns_408_and_follow_up_request_is_healthy(
     from debug_service import main
 
     adapters = {"python": FakeAdapter(sleep=0.2)}
-    factory = FakeFactory(adapters)
+    factory = FakeFactory(adapters, timeout_seconds=0.01)
     monkeypatch.setattr(
         main,
         "service",
-        DebugService(factory=factory, event_bus=EventBus(), timeout_seconds=0.01),
+        DebugService(factory=factory, event_bus=EventBus()),
     )
     client = TestClient(main.app)
 
@@ -148,7 +156,7 @@ def test_adapter_crash_returns_500(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
         main,
         "service",
-        DebugService(factory=factory, event_bus=EventBus(), timeout_seconds=0.1),
+        DebugService(factory=factory, event_bus=EventBus()),
     )
 
     response = TestClient(main.app).post(

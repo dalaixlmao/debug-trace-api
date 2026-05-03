@@ -6,6 +6,7 @@ from debug_service.adapters.go_adapter import GoAdapter
 from debug_service.adapters.java_adapter import JavaAdapter
 from debug_service.adapters.javascript_adapter import JavaScriptAdapter
 from debug_service.adapters.python_adapter import PythonAdapter
+from debug_service.decorators import with_timeout, with_validation
 from debug_service.exceptions import UnsupportedLanguageError
 
 
@@ -26,11 +27,16 @@ class DebugAdapterFactory:
     adding a language means adding one registry entry and a new adapter file.
     """
 
+    def __init__(self, timeout_seconds: float = 30.0) -> None:
+        self._timeout_seconds = timeout_seconds
+
     def get(self, language: str) -> DebugAdapter:
         adapter_type = _REGISTRY.get(language)
         if adapter_type is None:
             raise UnsupportedLanguageError(language)
-        return adapter_type()
+        adapter = adapter_type()
+        adapter.debug = with_validation(with_timeout(self._timeout_seconds)(adapter.debug))  # type: ignore[method-assign]
+        return adapter
 
     @staticmethod
     def supported() -> list[str]:

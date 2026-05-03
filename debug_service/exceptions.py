@@ -48,3 +48,7 @@ class AdapterFailureError(DebugTraceError):
 
     def payload(self) -> dict[str, str]:
         return {"error": self.error, "detail": "debug session failed"}
+
+
+class IllegalStateTransitionError(DebugTraceError):
+    error = "illegal_state_transition"
